@@ -4,6 +4,7 @@ require 'lib/bunny'
 require 'lib/bunny/filter'
 require 'lib/bunny/environment'
 require 'lib/bunny/exception_handler'
+require 'lib/bunny/fake_client'
 require 'rspec'
 
 # %w[qrack bunny].each do |dir|
@@ -15,21 +16,3 @@ require 'rspec'
 # end
 
 BunnyLogger = Logger.new(STDOUT)
-
-class Bunny::FakeClient
-
-  def start; end
-  def stop; end
-  def ack(*args); self; end
-  def bind(*args); self; end
-  def exchange(*args); self; end
-  def queue(*args); self; end
-  def publish(*args); self; end
-  def pop(*args); {:payload => nil}; end
-  def subscribe(*args)
-    yield if block_given?
-  end
-  
-end
-
-

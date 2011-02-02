@@ -287,10 +287,15 @@ Returns hash {:message_count, :consumer_count}.
       {:message_count => method.message_count, :consumer_count => method.consumer_count}
     end
 
+    def new_subscription(opts={})
+      Subscription09.new(client, self, opts)
+    end
+    
     def subscribe(opts = {}, &blk)
       # Create subscription
-      s = Bunny::Subscription09.new(client, self, opts)
-      s.start(&blk)
+      ExceptionHandler.handle(:consume, {:action => :consuming, :destination => name, :options => opts}) do
+        new_subscription(opts).start(&blk)
+      end
       
       # Reset when subscription finished
       @subscription = nil
