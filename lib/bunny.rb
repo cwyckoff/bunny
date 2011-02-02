@@ -1,5 +1,9 @@
 $:.unshift File.expand_path(File.dirname(__FILE__))
 
+require 'bunny/filter'
+require 'bunny/environment'
+require 'bunny/exception_handler'
+
 # Ruby standard libraries
 %w[socket thread timeout logger].each do |file|
   require file

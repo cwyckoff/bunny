@@ -1,9 +1,6 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__) + "/..")
 
 require 'lib/bunny'
-require 'lib/bunny/filter'
-require 'lib/bunny/environment'
-require 'lib/bunny/exception_handler'
 require 'lib/bunny/fake_client'
 require 'rspec'
 
