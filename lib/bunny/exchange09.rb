@@ -142,9 +142,7 @@ nil
 =end
 
     def publish(data, opts = {})
-      filtered_msg = Filter.filter(:publish, data)
-      info = {:message => filtered_msg, :action => :publishing, :destination => name, :options => opts}
-      ExceptionHandler.handle(:publish, info) do
+      ExceptionHandler.handle(:publish, {:action => :publishing, :destination => name, :options => opts}) do
         opts = opts.dup
         out = []
 
@@ -161,10 +159,10 @@ nil
                                                        :immediate => immediate,
                                                        :deprecated_ticket => 0 }
                                                      )
-        data = data.to_s
+        filtered_msg = Filter.filter(:publish, data)
         out << Qrack::Protocol09::Header.new(
                                              Qrack::Protocol09::Basic,
-                                             data.length, {
+                                             filtered_msg.to_s.length, {
                                                :content_type  => 'application/octet-stream',
                                                :delivery_mode => delivery_mode,
                                                :priority      => 0 

@@ -139,14 +139,10 @@ from queues if successful. If an error occurs raises _Bunny_::_ProtocolError_.
       # response that will not be sent by the server
       opts.delete(:nowait)
 
-      client.send_frame(
-                        Qrack::Protocol::Queue::Delete.new({ :queue => name, :nowait => false }.merge(opts))
-                        )
+      client.send_frame(Qrack::Protocol::Queue::Delete.new({ :queue => name, :nowait => false }.merge(opts)))
       
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::DeleteOk, "Error deleting queue #{name}")
-
+      client.check_response(method, Qrack::Protocol::Queue::DeleteOk, "Error deleting queue #{name}")
       client.queues.delete(name)
 
       # return confirmation
@@ -222,7 +218,6 @@ will be nil.
       
       # Pass message hash to block or return message hash
       blk ? blk.call(msg_hash) : msg_hash		
-      
     end
 	
 =begin rdoc
@@ -268,19 +263,22 @@ Returns hash {:message_count, :consumer_count}.
 =end
  
     def status
-      client.send_frame(
-                        Qrack::Protocol::Queue::Declare.new({ :queue => name, :passive => true })
-                        )
+      client.send_frame(Qrack::Protocol::Queue::Declare.new({ :queue => name, :passive => true }))
       method = client.next_method
       {:message_count => method.message_count, :consumer_count => method.consumer_count}
     end
 
+
+    def new_subscription(opts={})
+      Subscription.new(client, self, opts)
+    end
     
     def subscribe(opts = {}, &blk)
       # Create subscription
-      s = Bunny::Subscription.new(client, self, opts)
-      s.start(&blk)
-      
+      ExceptionHandler.handle(:consume, {:action => :consuming, :destination => name, :options => opts}) do
+        new_subscription(opts).start(&blk)
+      end
+        
       # Reset when subscription finished
       @subscription = nil
     end
@@ -316,16 +314,13 @@ the server will not send any more messages for that consumer.
                                                             :nowait => false))
       
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Basic::CancelOk,
-                            "Error unsubscribing from queue #{name}")
+      client.check_response(method, Qrack::Protocol::Basic::CancelOk, "Error unsubscribing from queue #{name}")
 
       # Reset subscription
       @subscription = nil
       
       # Return confirmation
       :unsubscribe_ok
-      
     end
 
 =begin rdoc
@@ -361,8 +356,7 @@ Removes a queue binding from an exchange. If error occurs, a _Bunny_::_ProtocolE
                         )
       
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::UnbindOk, "Error unbinding queue #{name}")
+      client.check_response(method, Qrack::Protocol::Queue::UnbindOk, "Error unbinding queue #{name}")
       
       # return message
       :unbind_ok

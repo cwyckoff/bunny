@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-BunnyLogger = Logger.new(STDOUT)
-
 describe Bunny::ExceptionHandler do
 
   before(:each) do

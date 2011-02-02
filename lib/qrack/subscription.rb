@@ -64,7 +64,6 @@ module Qrack
         
         # get delivery tag to use for acknowledge
         queue.delivery_tag = method.delivery_tag if @ack
-        
         header = client.next_payload
 
         # If maximum frame size is smaller than message payload body then message
@@ -75,11 +74,7 @@ module Qrack
         end
 
         # If block present, pass the message info to the block for processing		
-        filtered_msg = ::Bunny::Filter.filter(:consume, msg)
-        info = {:message => filtered_msg, :action => :publishing, :destination => queue.name, :options => @opts}
-        ::Bunny::ExceptionHandler.handle(:consume, info) do
-          blk.call({:header => header, :payload => filtered_msg, :delivery_details => method.arguments}) if !blk.nil?
-        end
+        blk.call({:header => header, :payload => ::Bunny::Filter.filter(:consume, msg), :delivery_details => method.arguments}) if !blk.nil?
 
         # Exit loop if message_max condition met
         if (!message_max.nil? and message_count == message_max)
@@ -96,7 +91,6 @@ module Qrack
         # the unsubscribe takes effect to stop messages being sent to this consumer unless the ack is
         # deferred.
         queue.ack() if @ack
-        
       end
       
     end

@@ -14,6 +14,8 @@ require 'rspec'
 #   e.mode = :test
 # end
 
+BunnyLogger = Logger.new(STDOUT)
+
 class Bunny::FakeClient
 
   def start; end
