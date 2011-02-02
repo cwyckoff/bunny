@@ -8,8 +8,4 @@ require 'rspec'
 #   Dir[File.join("lib", dir, "**/*.rb")].each { |file| require file }
 # end
 
-# Bunny::Environment.define do |e|
-#   e.mode = :test
-# end
-
 BunnyLogger = Logger.new(STDOUT)

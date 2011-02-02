@@ -58,6 +58,10 @@ module Bunny
     bunny.queue(name, opts)
   end
   
+  def self.publish(queue_name, msg, opts={})
+    Bunny.queue(queue_name, opts).publish(msg)
+  end
+  
   # Runs a code block using a short-lived connection
   def self.run(opts = {}, &block)
     raise ArgumentError, 'Bunny#run requires a block' unless block

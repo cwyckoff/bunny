@@ -95,4 +95,20 @@ describe Bunny do
     
   end
 
+  describe ".publish" do
+
+    it "publishes a messages to a specified queue" do
+      # given
+      queue = mock("BunnyQueue")
+      Bunny.stub(:queue).and_return(queue)
+
+      # expect
+      queue.should_receive(:publish).with("bar")
+
+      # when
+      Bunny.publish("foo", "bar")
+    end
+    
+  end
+
 end
