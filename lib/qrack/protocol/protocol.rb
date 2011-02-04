@@ -1,12 +1,12 @@
 module Qrack
-	module Protocol09
+	module Protocol
 	  #:stopdoc:
 	  class Class::Method
 	    def initialize *args
 	      opts = args.pop if args.last.is_a? Hash
 	      opts ||= {}
       
-	      if args.size == 1 and args.first.is_a? Transport09::Buffer
+	      if args.size == 1 and args.first.is_a? Transport::Buffer
 	        buf = args.shift
 	      else
 	        buf = nil
@@ -26,7 +26,7 @@ module Qrack
 	    end
 
 	    def to_binary
-	      buf = Transport09::Buffer.new
+	      buf = Transport::Buffer.new
 	      buf.write :short, self.class.parent.id
 	      buf.write :short, self.class.id
 
@@ -56,7 +56,7 @@ module Qrack
 	    end
     
 	    def to_frame channel = 0
-	      Transport09::Method.new(self, channel)
+	      Transport::Method.new(self, channel)
 	    end
 	  end
 
@@ -67,17 +67,17 @@ module Qrack
       
 	      first = args.shift
       
-	      if first.is_a? ::Class and first.ancestors.include? Protocol09::Class
+	      if first.is_a? ::Class and first.ancestors.include? Protocol::Class
 	        @klass = first
 	        @size = args.shift || 0
 	        @weight = args.shift || 0
 	        @properties = opts
 
-	      elsif first.is_a? Transport09::Buffer or first.is_a? String
+	      elsif first.is_a? Transport::Buffer or first.is_a? String
 	        buf = first
-	        buf = Transport09::Buffer.new(buf) unless buf.is_a? Transport09::Buffer
+	        buf = Transport::Buffer.new(buf) unless buf.is_a? Transport::Buffer
         
-	        @klass = Protocol09.classes[buf.read(:short)]
+	        @klass = Protocol.classes[buf.read(:short)]
 	        @weight = buf.read(:short)
 	        @size = buf.read(:longlong)
 
@@ -92,7 +92,7 @@ module Qrack
 	    attr_accessor :klass, :size, :weight, :properties
     
 	    def to_binary
-	      buf = Transport09::Buffer.new
+	      buf = Transport::Buffer.new
 	      buf.write :short, klass.id
 	      buf.write :short, weight # XXX rabbitmq only supports weight == 0
 	      buf.write :longlong, size
@@ -108,7 +108,7 @@ module Qrack
 	    end
 
 	    def to_frame channel = 0
-	      Transport09::Header.new(self, channel)
+	      Transport::Header.new(self, channel)
 	    end
 
 	    def == header
@@ -124,7 +124,7 @@ module Qrack
 	  end
 
 	  def self.parse buf
-	    buf = Transport09::Buffer.new(buf) unless buf.is_a? Transport09::Buffer
+	    buf = Transport::Buffer.new(buf) unless buf.is_a? Transport::Buffer
 	    class_id, method_id = buf.read(:short, :short)
 	    classes[class_id].methods[method_id].new(buf)
 	  end

@@ -12,9 +12,9 @@ describe 'Queue' do
   before(:each) do
     Bunny::ExceptionHandler.reset
     Bunny::Filter.reset
-    @b = Bunny.new
+    @b = Bunny.new(:spec => '')
     @b.start
-    %w[test0 test1 test2].each {|queue_name| @b.queue(queue_name).purge}
+    %w[test0 test1].each {|queue_name| @b.queue(queue_name).purge}
   end
 
   describe ".new" do
@@ -26,7 +26,7 @@ describe 'Queue' do
   end
 
   describe "#bind" do
-
+  
     it "should ignore the :nowait option when binding to an exchange" do
       exch = @b.exchange('direct_exch')
       q = @b.queue('test0')
@@ -44,12 +44,12 @@ describe 'Queue' do
       q = @b.queue('test1')
       q.bind(exch).should == :bind_ok
     end
-    
-  end
 
+  end
+    
   describe "#unbind" do
 
-    it "should ignore the :nowait option when unbinding from an exchange" do
+    it "should ignore the :nowait option when unbinding from an existing exchange" do
       exch = @b.exchange('direct_exch')
       q = @b.queue('test0')
       q.unbind(exch, :nowait => true).should == :unbind_ok
@@ -61,33 +61,33 @@ describe 'Queue' do
       @b.channel.active.should == false
     end
     
-    it "should be able to unbind from an existing exchange" do
+    it "should be able to unbind from an exchange" do
       exch = @b.exchange('direct_exch')
       q = @b.queue('test1')
       q.unbind(exch).should == :unbind_ok
     end
 
   end
-  
-  describe "#publish" do
 
+  describe "#publish" do
+    
     it "should be able to publish a message" do
       q = @b.queue('test1')
       q.publish('This is a test message')
       q.message_count.should == 1
     end
-    
+
   end
   
   describe "#pop" do
-
+  
     it "should be able to pop a message complete with header and delivery details" do
       q = @b.queue('test1')
-      q.publish("This is a test message")
+      q.publish('This is a test message')
       msg = q.pop()
       msg.should be_an_instance_of(Hash)
       msg[:header].should be_an_instance_of(Bunny::Protocol::Header)
-      msg[:payload].should == "This is a test message"
+      msg[:payload].should == 'This is a test message'
       msg[:delivery_details].should be_an_instance_of(Hash)
       q.message_count.should == 0
     end
@@ -122,25 +122,11 @@ describe 'Queue' do
       msg = q.pop[:payload]
       msg.should == :queue_empty
     end
-    
+
   end
-
+  
   describe "#purge" do
-
-    it "should be able to be purged to remove all of its messages" do
-      # given
-      q = @b.queue('test1')
-      5.times {q.publish('This is another test message')}
-      q.message_count.should == 5
-
-      # when
-      response = q.purge
-
-      # expect
-      response.should == :purge_ok
-      q.message_count.should == 0
-    end
-
+  
     it "should raise an error if purge fails" do
       q = @b.queue('test1')
       5.times {q.publish('This is another test message')}
@@ -148,14 +134,18 @@ describe 'Queue' do
       lambda {q.purge(:queue => 'bogus')}.should raise_error(Bunny::ForcedChannelCloseError)
     end
     
+    it "should be able to be purged to remove all of its messages" do
+      q = @b.queue('test1')
+      5.times {q.publish('This is another test message')}
+      q.message_count.should == 5
+      q.purge.should == :purge_ok
+      q.message_count.should == 0
+    end
+
   end
     
   describe "#subscribe" do
 
-    before(:each) do
-      @b.queue('test1').purge
-    end
-    
     it "should stop subscription without processing messages if max specified is 0" do
       q = @b.queue('test1')
       5.times {q.publish('Yet another test message')}
@@ -171,7 +161,7 @@ describe 'Queue' do
       q.message_count.should == 5
       q.subscribe(:message_max => 5)
     end
-
+    
     it "should stop subscription after processing message_max messages < total in queue" do
       q = @b.queue('test1')
       @b.qos()
@@ -181,7 +171,7 @@ describe 'Queue' do
       q.message_count.should == 5
       q.purge.should == :purge_ok
     end
-
+    
     it "should pass correct block parameters through on subscribe" do
       q = @b.queue('test1')
       q.publish("messages pop\'n")
@@ -198,7 +188,7 @@ describe 'Queue' do
     end
 
     it "should finish processing subscription messages if break is called in block" do
-      q = @b.queue('test2')
+      q = @b.queue('test1')
       q.publish('messages in my quezen')
 
       q.subscribe do |msg|
@@ -214,7 +204,6 @@ describe 'Queue' do
           break
         end
       end
-
     end
 
     it "should delegate to Bunny::ExceptionHandler if exception is raised" do
@@ -225,7 +214,6 @@ describe 'Queue' do
       q = @b.queue('test3')
       q.stub!(:new_subscription).and_return(subscription)
       q.publish("messages pop\'n")
-
       
       # expect
       Bunny.logger.should_receive(:info).with("something blew up on consuming")
@@ -236,9 +224,11 @@ describe 'Queue' do
         break
       end
     end
+
   end
-  
+
   describe "#delete" do
+
 
     it "should raise an error when delete fails" do
       q = @b.queue('test1')
@@ -252,7 +242,7 @@ describe 'Queue' do
       res.should == :delete_ok
       @b.queues.has_key?('test1').should be(false)
     end
-    
+
     it "should ignore the :nowait option when deleted" do
       q = @b.queue('test0')
       q.delete(:nowait => true)

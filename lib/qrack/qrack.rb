@@ -1,10 +1,10 @@
 $: << File.expand_path(File.dirname(__FILE__))
 
-require 'protocol/spec08'
-require 'protocol/protocol08'
+require 'protocol/spec'
+require 'protocol/protocol'
 
-require 'transport/buffer08'
-require 'transport/frame08'
+require 'transport/buffer'
+require 'transport/frame'
 
 require 'qrack/client'
 require 'qrack/channel'

@@ -29,7 +29,7 @@ specification that applies to your target broker/server.
 
 =end
   
-  class Exchange09
+  class Exchange
 
     attr_reader :client, :type, :name, :opts, :key
 
@@ -58,7 +58,7 @@ specification that applies to your target broker/server.
       
       unless name == "amq.#{type}" or name == ''
         client.send_frame(
-                          Qrack::Protocol09::Exchange::Declare.new(
+                          Qrack::Protocol::Exchange::Declare.new(
                                                                    { :exchange => name, :type => type, :nowait => false,
                                                                      :deprecated_ticket => 0, :deprecated_auto_delete => false, :deprecated_internal => false }.merge(opts)
                                                                    )
@@ -66,7 +66,7 @@ specification that applies to your target broker/server.
 
         method = client.next_method
 
-        client.check_response(method, Qrack::Protocol09::Exchange::DeclareOk,
+        client.check_response(method, Qrack::Protocol::Exchange::DeclareOk,
                               "Error declaring exchange #{name}: type = #{type}")
         
       end
@@ -97,12 +97,12 @@ if successful. If an error occurs raises _Bunny_::_ProtocolError_.
       opts.delete(:nowait)
 
       client.send_frame(
-                        Qrack::Protocol09::Exchange::Delete.new({ :exchange => name, :nowait => false, :deprecated_ticket => 0 }.merge(opts))
+                        Qrack::Protocol::Exchange::Delete.new({ :exchange => name, :nowait => false, :deprecated_ticket => 0 }.merge(opts))
                         )
 
       method = client.next_method
 
-      client.check_response(method, Qrack::Protocol09::Exchange::DeleteOk,
+      client.check_response(method, Qrack::Protocol::Exchange::DeleteOk,
                             "Error deleting exchange #{name}")
 
       client.exchanges.delete(name)
@@ -152,7 +152,7 @@ nil
         immediate = opts.delete(:immediate)
         delivery_mode = opts.delete(:persistent) ? 2 : 1
 
-        out << Qrack::Protocol09::Basic::Publish.new(
+        out << Qrack::Protocol::Basic::Publish.new(
                                                      { :exchange => name,
                                                        :routing_key => routing_key,
                                                        :mandatory => mandatory,
@@ -162,15 +162,15 @@ nil
         filtered_msg = Filter.filter(:publish, data)
         Bunny.logger.wrap("== BUNNY :: Publishing to '#{name}'")
         Bunny.logger.info("== Message: #{filtered_msg}")
-        out << Qrack::Protocol09::Header.new(
-                                             Qrack::Protocol09::Basic,
+        out << Qrack::Protocol::Header.new(
+                                             Qrack::Protocol::Basic,
                                              filtered_msg.to_s.length, {
                                                :content_type  => 'application/octet-stream',
                                                :delivery_mode => delivery_mode,
                                                :priority      => 0 
                                              }.merge(opts)
                                              )
-        out << Qrack::Transport09::Body.new(filtered_msg)
+        out << Qrack::Transport::Body.new(filtered_msg)
 
         client.send_frame(*out)
       end

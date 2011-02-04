@@ -2,3 +2,5 @@
 .*.swp
 .rvmrc
 .rspec
+*.gem
+log/*

@@ -59,23 +59,27 @@ my_queue.subscribe(:message_max => 10, :ack => true) {|msg| puts msg[:payload]}
 
 =end
 	
-  class Subscription < Qrack::Subscription
+	class Subscription < Qrack::Subscription
+	
+		def setup_consumer
+			client.send_frame(
+				Qrack::Protocol::Basic::Consume.new({ :deprecated_ticket => 0,
+																			 					:queue => queue.name,
+																	 		 					:consumer_tag => consumer_tag,
+																	 		 					:no_ack => !ack,
+																								:exclusive => exclusive,
+																	 		 					:nowait => false}.merge(@opts))
+												)
 
-    
-    def setup_consumer
-      client.send_frame(
-                        Qrack::Protocol::Basic::Consume.new({ :queue => queue.name,
-                                                              :consumer_tag => consumer_tag,
-                                                              :no_ack => !ack,
-                                                              :exclusive => exclusive,
-                                                              :nowait => false }.merge(@opts))
-                        )
+			method = client.next_method
 
-      method = client.next_method
-      client.check_response(method, Qrack::Protocol::Basic::ConsumeOk, "Error subscribing to queue #{queue.name}")
-      @consumer_tag = method.consumer_tag
-    end
-    
-  end
-  
+			client.check_response(method,	Qrack::Protocol::Basic::ConsumeOk,
+				"Error subscribing to queue #{queue.name}")
+
+			@consumer_tag = method.consumer_tag
+		
+		end
+	
+	end
+	
 end
