@@ -1,5 +1,9 @@
 class Bunny::FakeClient
 
+  class << self
+    attr_accessor :msg
+  end
+  
   def start; end
   def stop; end
   def ack(*args); self; end
@@ -9,7 +13,7 @@ class Bunny::FakeClient
   def publish(*args); self; end
   def pop(*args); {:payload => nil}; end
   def subscribe(*args)
-    yield if block_given?
+    yield self.class.msg
   end
   
 end

@@ -26,17 +26,17 @@ module Bunny
   def self.version
     VERSION
   end
-
+  
   # Instantiates new Bunny::Client
   def self.new(opts = {})
     # Set up Bunny according to AMQP spec version required
     spec_version = opts[:spec] || '08'
     
     # Return client
-    if Environment.set?
-      setup(spec_version, Environment.options.merge(opts))
-    elsif Environment.mode == :test
+    if Environment.mode == :test
       FakeClient.new
+    elsif Environment.set?
+      setup(spec_version, Environment.options.merge(opts))
     else
       setup(spec_version, opts)
     end
