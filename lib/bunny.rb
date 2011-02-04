@@ -86,9 +86,8 @@ module Bunny
     require 'bunny/queue'
     require 'bunny/channel'
     require 'bunny/subscription'
-    
+
     client = Bunny::Client.new(opts)
-    
     include Qrack
 
     client

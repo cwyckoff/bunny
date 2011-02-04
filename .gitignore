@@ -3,4 +3,4 @@
 .rvmrc
 .rspec
 *.gem
-log/*
+*.log

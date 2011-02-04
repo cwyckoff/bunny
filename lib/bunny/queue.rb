@@ -9,7 +9,9 @@ Queues must be attached to at least one exchange in order to receive messages fr
 
 =end
 
-  class Queue < Qrack::Queue
+  class Queue
+    attr_reader :name, :client
+    attr_accessor :delivery_tag, :subscription
 
     def initialize(client, name, opts = {})
       # check connection to server
@@ -46,7 +48,49 @@ Queues must be attached to at least one exchange in order to receive messages fr
       @name = method.queue
       client.queues[@name] = self
     end
+    
+=begin rdoc
 
+=== DESCRIPTION:
+
+Returns consumer count from Queue#status.
+
+=end
+
+    def consumer_count
+      s = status
+      s[:consumer_count]
+    end
+
+=begin rdoc
+
+=== DESCRIPTION:
+
+Returns message count from Queue#status.
+
+=end
+
+    def message_count
+      s = status
+      s[:message_count]
+    end
+
+=begin rdoc
+
+=== DESCRIPTION:
+
+Publishes a message to the queue via the default nameless '' direct exchange.
+
+==== RETURNS:
+
+nil
+
+=end
+
+    def publish(data, opts = {})
+      exchange.publish(data, opts)
+    end
+    
 =begin rdoc
 
 === DESCRIPTION:
