@@ -13,7 +13,7 @@ describe Bunny::ExceptionHandler do
       msg = {:foo => "bar"}
       Bunny::ExceptionHandler.define do |h|
         h.register(:all) do |exception, info|
-          BunnyLogger.info("something blew up: #{exception.message}")
+          Bunny.logger.info("something blew up: #{exception.message}")
         end
       end
 
@@ -29,7 +29,7 @@ describe Bunny::ExceptionHandler do
       msg = {:foo => "bar"}
       Bunny::ExceptionHandler.define do |h|
         h.register(:publish) do |exception, info|
-          BunnyLogger.info("something blew up: #{exception.message}")
+          Bunny.logger.info("something blew up: #{exception.message}")
         end
       end
     end
@@ -47,7 +47,7 @@ describe Bunny::ExceptionHandler do
       Bunny::ExceptionHandler.reset
       class Bunny::MyExceptionHandler
         def self.handle(exception)
-          BunnyLogger.info("something blew up: #{exception.message}")
+          Bunny.logger.info("something blew up: #{exception.message}")
         end
       end
       Bunny::ExceptionHandler.define { |h| h.register(:publish, Bunny::MyExceptionHandler) }
@@ -63,11 +63,11 @@ describe Bunny::ExceptionHandler do
     it "delegates to handlers registered for specific events" do
       # given
       Bunny::ExceptionHandler.define do |h|
-        h.register(:publish) { |exception, info| BunnyLogger.info("oops!") }
+        h.register(:publish) { |exception, info| Bunny.logger.info("oops!") }
       end
 
       # expect
-      BunnyLogger.should_receive(:info).with("oops!")
+      Bunny.logger.should_receive(:info).with("oops!")
 
       # when
       Bunny::ExceptionHandler.handle(:publish) { raise "oops!" }
@@ -76,12 +76,12 @@ describe Bunny::ExceptionHandler do
     it "delegates to handlers registered for 'all' as well as those registered for specific events" do
       # given
       Bunny::ExceptionHandler.define do |h|
-        h.register(:publish) { |exception, info| BunnyLogger.info("oops!") }
-        h.register(:all) { |exception, info| BunnyLogger.info("oops!") }
+        h.register(:publish) { |exception, info| Bunny.logger.info("oops!") }
+        h.register(:all) { |exception, info| Bunny.logger.info("oops!") }
       end
 
       # expect
-      BunnyLogger.should_receive(:info).twice.with("oops!")
+      Bunny.logger.should_receive(:info).twice.with("oops!")
 
       # when
       Bunny::ExceptionHandler.handle(:publish) { raise "oops!" }
@@ -90,11 +90,11 @@ describe Bunny::ExceptionHandler do
     it "passes arguments to handlers" do
       # given
       Bunny::ExceptionHandler.define do |h|
-        h.register(:publish) { |exception, info| BunnyLogger.info("error #{exception.message} raised in #{info[:action]}") }
+        h.register(:publish) { |exception, info| Bunny.logger.info("error #{exception.message} raised in #{info[:action]}") }
       end
 
       # expect
-      BunnyLogger.should_receive(:info).with("error oops! raised in publishing")
+      Bunny.logger.should_receive(:info).with("error oops! raised in publishing")
 
       # when
       Bunny::ExceptionHandler.handle(:publish, {:action => "publishing"}) { raise "oops!" }

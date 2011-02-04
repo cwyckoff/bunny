@@ -219,7 +219,7 @@ describe 'Queue' do
 
     it "should delegate to Bunny::ExceptionHandler if exception is raised" do
       # given
-      Bunny::ExceptionHandler.register(:all) { |exception, info| BunnyLogger.info("something blew up on #{info[:action].to_s}") }
+      Bunny::ExceptionHandler.register(:all) { |exception, info| Bunny.logger.info("something blew up on #{info[:action].to_s}") }
       subscription = mock('subscription')
       subscription.stub!(:start).and_raise(Exception)
       q = @b.queue('test3')
@@ -228,7 +228,7 @@ describe 'Queue' do
 
       
       # expect
-      BunnyLogger.should_receive(:info).with("something blew up on consuming")
+      Bunny.logger.should_receive(:info).with("something blew up on consuming")
 
       # when
       q.subscribe do |msg|

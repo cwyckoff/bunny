@@ -73,8 +73,12 @@ module Qrack
           msg += client.next_payload
         end
 
+        filtered_msg = ::Bunny::Filter.filter(:consume, msg)
+        Bunny.logger.wrap("== BUNNY :: Receiving from '#{queue.name}'")
+        Bunny.logger.info("== Message: #{filtered_msg}")
+
         # If block present, pass the message info to the block for processing		
-        blk.call({:header => header, :payload => ::Bunny::Filter.filter(:consume, msg), :delivery_details => method.arguments}) if !blk.nil?
+        blk.call({:header => header, :payload => filtered_msg, :delivery_details => method.arguments}) if !blk.nil?
 
         # Exit loop if message_max condition met
         if (!message_max.nil? and message_count == message_max)

@@ -154,7 +154,7 @@ Exchange
         frame = Qrack::Transport::Frame.parse(buffer)
       end
       
-      @logger.info("received") { frame } if @logging
+      Bunny.logger.info("received") { frame } if Bunny::Environment.mode == "debug"
       
       raise Bunny::ConnectionError, 'No connection to server' if (frame.nil? and !connecting?)
       
@@ -326,7 +326,7 @@ the message, potentially then delivering it to an alternative subscriber.
         data         = data.to_frame(channel.number) unless data.is_a?(Qrack::Transport::Frame)
         data.channel = channel.number
 
-        @logger.info("send") { data } if @logging
+        Bunny.logger.info("send") { data } if Bunny::Environment.mode == "debug"
         write(data.to_s)
 
         # Monitor client activity for heartbeat purposes

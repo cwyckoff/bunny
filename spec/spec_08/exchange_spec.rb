@@ -162,12 +162,12 @@ describe 'Exchange' do
 
     it "should delegate to Bunny::ExceptionHandler if exception is raised" do
       # given
-      Bunny::ExceptionHandler.register(:all) { |exception, info| BunnyLogger.info("something blew up on #{info[:action].to_s}") }
+      Bunny::ExceptionHandler.register(:all) { |exception, info| Bunny.logger.info("something blew up on #{info[:action].to_s}") }
       exch = @b.exchange('return_exchange')
       exch.client.stub!(:send_frame).and_raise(Exception)
       
       # expect
-      BunnyLogger.should_receive(:info).with("something blew up on publishing")
+      Bunny.logger.should_receive(:info).with("something blew up on publishing")
 
       # when
       exch.publish({:foo => "bar"})

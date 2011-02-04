@@ -1,5 +1,6 @@
 $:.unshift File.expand_path(File.dirname(__FILE__))
 
+require 'bunny/logger'
 require 'bunny/filter'
 require 'bunny/environment'
 require 'bunny/exception_handler'

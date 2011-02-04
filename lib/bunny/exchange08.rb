@@ -158,6 +158,10 @@ nil
                                                      :immediate => immediate }
                                                    )
         filtered_msg = Filter.filter(:publish, data)
+
+        Bunny.logger.wrap("== BUNNY :: Publishing to '#{name}'")
+        Bunny.logger.info("== Message: #{filtered_msg}")
+
         out << Qrack::Protocol::Header.new(
                                            Qrack::Protocol::Basic,
                                            filtered_msg.to_s.length, {

@@ -66,7 +66,38 @@ describe Bunny do
       client.host.should == "bunny.com"
       client.vhost.should == "foo"
       client.port.should == "1234"
-      client.logging.should == true
+    end
+    
+  end
+
+  describe ".logger" do
+
+    it "returns a Bunny::Logger" do
+      # given
+      Bunny.logger = Bunny::Logger.new('spec/bunny.log')
+
+      # expect
+      Bunny.logger.should be_an_instance_of(Bunny::Logger)
+    end
+
+    it "raises a MissingLogger exception if logger is not set" do
+      # given
+      Bunny.logger = nil
+
+      # expect
+      lambda {Bunny.logger}.should raise_error(Bunny::MissingLogger)
+    end
+    
+  end
+
+  describe ".logger=" do
+
+    it "sets a Bunny::Logger" do
+      # when
+      Bunny.logger = Bunny::Logger.new('spec/bunny.log')
+
+      # expect
+      Bunny.logger.should be_an_instance_of(Bunny::Logger)
     end
     
   end

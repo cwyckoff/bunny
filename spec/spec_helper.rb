@@ -8,4 +8,4 @@ require 'rspec'
 #   Dir[File.join("lib", dir, "**/*.rb")].each { |file| require file }
 # end
 
-BunnyLogger = Logger.new(STDOUT)
+Bunny.logger = Bunny::Logger.new('spec/bunny.log')

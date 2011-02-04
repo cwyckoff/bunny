@@ -9,8 +9,8 @@ module Qrack
     CONNECT_TIMEOUT = 5.0
     RETRY_DELAY     = 10.0
 
-    attr_reader   :status, :host, :vhost, :port, :logging, :spec, :heartbeat
-    attr_accessor :channel, :logfile, :exchanges, :queues, :channels, :message_in, :message_out,
+    attr_reader   :status, :host, :vhost, :port, :spec, :heartbeat
+    attr_accessor :channel, :exchanges, :queues, :channels, :message_in, :message_out,
     :connecting
 
     def initialize(opts = {})
@@ -18,8 +18,6 @@ module Qrack
       @user   = opts[:user]  || 'guest'
       @pass   = opts[:pass]  || 'guest'
       @vhost  = opts[:vhost] || '/'
-      @logfile = opts[:logfile] || nil
-      @logging = opts[:logging] || false
       @ssl = opts[:ssl] || false
       @verify_ssl = opts[:verify_ssl].nil? || opts[:verify_ssl]
       @status = :not_connected
@@ -27,8 +25,6 @@ module Qrack
       @channel_max = opts[:channel_max] || 0
       @heartbeat = opts[:heartbeat] || 0
       @connect_timeout = opts[:connect_timeout] || CONNECT_TIMEOUT
-      @logger = nil
-      create_logger if @logging
       @message_in = false
       @message_out = false
       @connecting = false
@@ -73,11 +69,6 @@ _Bunny_::_ProtocolError_ is raised. If successful, _Client_._status_ is set to <
     
     def connecting?
       connecting
-    end
-    
-    def logging=(bool)
-      @logging = bool
-      create_logger if @logging
     end
     
     def next_payload(options = {})
@@ -161,12 +152,6 @@ a hash <tt>{:reply_code, :reply_text, :exchange, :routing_key}</tt>.
       @status   = :not_connected
     end
 
-    def create_logger
-      @logfile ? @logger = Logger.new("#{logfile}") : @logger = Logger.new(STDOUT)
-      @logger.level = Logger::INFO
-      @logger.datetime_format = "%Y-%m-%d %H:%M:%S"
-    end
-    
     def send_command(cmd, *args)
       begin
         raise Bunny::ConnectionError, 'No connection - socket has not been created' if !@socket
