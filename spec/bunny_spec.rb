@@ -126,6 +126,19 @@ describe Bunny do
     
   end
 
+  describe ".fanout_queue" do
+
+    it "returns a new Bunny queue object that is bound to a fanout exchange" do
+      # given
+      queue = Bunny.fanout_queue("foos", "my_queue")
+      Bunny.publish("foos", "bar", :type => "fanout")
+
+      # expect
+      queue.pop[:payload].should == "bar"
+    end
+    
+  end
+  
   describe ".publish" do
 
     it "publishes a messages to a specified queue" do
@@ -138,11 +151,8 @@ describe Bunny do
     
     it "publishes a messages to an exchange if type is set to 'fanout'" do
       # given
-      exch = Bunny.exchange("foos", :type => "fanout")
-      q1 = Bunny.queue("queues1")
-      q2 = Bunny.queue("queues2")
-      q1.bind(exch)
-      q2.bind(exch)
+      q1 = Bunny.fanout_queue("foos", "queues1")
+      q2 = Bunny.fanout_queue("foos", "queues2")
 
       # when
       Bunny.publish("foos", "bar", :type => "fanout")

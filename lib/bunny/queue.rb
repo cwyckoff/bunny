@@ -36,14 +36,9 @@ Queues must be attached to at least one exchange in order to receive messages fr
       # ignore the :nowait option if passed, otherwise program will hang waiting for a
       # response that will not be sent by the server
       opts.delete(:nowait)
-      
-      client.send_frame(
-                        Qrack::Protocol::Queue::Declare.new({ :queue => name || '', :nowait => false, :deprecated_ticket => 0 }.merge(opts))
-                        )
-      
+      client.send_frame(Qrack::Protocol::Queue::Declare.new({ :queue => name || '', :nowait => false, :deprecated_ticket => 0 }.merge(opts)))
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::DeclareOk, "Error declaring queue #{name}")
+      client.check_response(method, Qrack::Protocol::Queue::DeclareOk, "Error declaring queue #{name}")
 
       @name = method.queue
       client.queues[@name] = self
@@ -115,10 +110,7 @@ ask to confirm a single message or a set of messages up to and including a speci
       else
         self.delivery_tag = opts[:delivery_tag] if delivery_tag.nil?
       end
-      
-      client.send_frame(
-                        Qrack::Protocol::Basic::Ack.new({:delivery_tag => delivery_tag, :multiple => false}.merge(opts))
-                        )
+      client.send_frame(Qrack::Protocol::Basic::Ack.new({:delivery_tag => delivery_tag, :multiple => false}.merge(opts)))
 
       # reset delivery tag
       self.delivery_tag = nil
@@ -142,12 +134,11 @@ bound to the direct exchange '' by default. If error occurs, a _Bunny_::_Protoco
 =end
 
     def bind(exchange, opts = {})
-      exchange           = exchange.respond_to?(:name) ? exchange.name : exchange
+      exchange = exchange.respond_to?(:name) ? exchange.name : exchange
 
       # ignore the :nowait option if passed, otherwise program will hang waiting for a
       # response that will not be sent by the server
       opts.delete(:nowait)
-
       client.send_frame(
                         Qrack::Protocol::Queue::Bind.new({ :queue => name,
                                                              :exchange => exchange,
@@ -155,11 +146,8 @@ bound to the direct exchange '' by default. If error occurs, a _Bunny_::_Protoco
                                                              :nowait => false,
                                                              :deprecated_ticket => 0 }.merge(opts))
                         )
-
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::BindOk,
-                            "Error binding queue: #{name} to exchange: #{exchange}")
+      client.check_response(method, Qrack::Protocol::Queue::BindOk, "Error binding queue: #{name} to exchange: #{exchange}")
 
       # return message
       :bind_ok
@@ -192,15 +180,9 @@ from queues if successful. If an error occurs raises _Bunny_::_ProtocolError_.
       # ignore the :nowait option if passed, otherwise program will hang waiting for a
       # response that will not be sent by the server
       opts.delete(:nowait)
-
-      client.send_frame(
-                        Qrack::Protocol::Queue::Delete.new({ :queue => name, :nowait => false, :deprecated_ticket => 0 }.merge(opts))
-                        )
-
+      client.send_frame(Qrack::Protocol::Queue::Delete.new({ :queue => name, :nowait => false, :deprecated_ticket => 0 }.merge(opts)))
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::DeleteOk, "Error deleting queue #{name}")
-
+      client.check_response(method, Qrack::Protocol::Queue::DeleteOk, "Error deleting queue #{name}")
       client.queues.delete(name)
 
       # return confirmation
@@ -237,10 +219,8 @@ will be nil.
 =end
 
     def pop(opts = {}, &blk)
-      
       # do we want to have to provide an acknowledgement?
       ack = opts.delete(:ack)
-      
       client.send_frame(
                         Qrack::Protocol::Basic::Get.new({ :queue => name,
                                                             :consumer_tag => name,
@@ -248,9 +228,9 @@ will be nil.
                                                             :nowait => true,
                                                             :deprecated_ticket => 0 }.merge(opts))
                         )
-      
+
       method = client.next_method
-      
+
       if method.is_a?(Qrack::Protocol::Basic::GetEmpty) then
         queue_empty = true
       elsif	!method.is_a?(Qrack::Protocol::Basic::GetOk)
@@ -278,7 +258,6 @@ will be nil.
 
       # Pass message hash to block or return message hash
       blk ? blk.call(msg_hash) : msg_hash		
-
     end
 	
 =begin rdoc
@@ -301,18 +280,12 @@ without any formal "undo" mechanism. If an error occurs raises _Bunny_::_Protoco
       # ignore the :nowait option if passed, otherwise program will hang waiting for a
       # response that will not be sent by the server
       opts.delete(:nowait)
-
-      client.send_frame(
-                        Qrack::Protocol::Queue::Purge.new({ :queue => name, :nowait => false, :deprecated_ticket => 0 }.merge(opts))
-                        )
-
+      client.send_frame(Qrack::Protocol::Queue::Purge.new({ :queue => name, :nowait => false, :deprecated_ticket => 0 }.merge(opts)))
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::PurgeOk, "Error purging queue #{name}")
+      client.check_response(method, Qrack::Protocol::Queue::PurgeOk, "Error purging queue #{name}")
 
       # return confirmation
       :purge_ok
-
     end
 
 =begin rdoc
@@ -324,9 +297,7 @@ Returns hash {:message_count, :consumer_count}.
 =end
  
     def status
-      client.send_frame(
-                        Qrack::Protocol::Queue::Declare.new({ :queue => name, :passive => true, :deprecated_ticket => 0 })
-                        )
+      client.send_frame(Qrack::Protocol::Queue::Declare.new({ :queue => name, :passive => true, :deprecated_ticket => 0 }))
       method = client.next_method
       {:message_count => method.message_count, :consumer_count => method.consumer_count}
     end
@@ -368,7 +339,6 @@ Removes a queue binding from an exchange. If error occurs, a _Bunny_::_ProtocolE
       # ignore the :nowait option if passed, otherwise program will hang waiting for a
       # response that will not be sent by the server
       opts.delete(:nowait)
-
       client.send_frame(
                         Qrack::Protocol::Queue::Unbind.new({ :queue => name,
                                                                :exchange => exchange,
@@ -377,10 +347,8 @@ Removes a queue binding from an exchange. If error occurs, a _Bunny_::_ProtocolE
                                                                :deprecated_ticket => 0 }.merge(opts)
                                                              )
                         )
-
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Queue::UnbindOk, "Error unbinding queue #{name}")
+      client.check_response(method, Qrack::Protocol::Queue::UnbindOk, "Error unbinding queue #{name}")
 
       # return message
       :unbind_ok
@@ -413,13 +381,9 @@ the server will not send any more messages for that consumer.
       "No consumer tag received" if !consumer_tag
       
       # Cancel consumer
-      client.send_frame( Qrack::Protocol::Basic::Cancel.new(:consumer_tag => consumer_tag,
-                                                              :nowait => false))
-
+      client.send_frame( Qrack::Protocol::Basic::Cancel.new(:consumer_tag => consumer_tag, :nowait => false))
       method = client.next_method
-
-      client.check_response(method,	Qrack::Protocol::Basic::CancelOk,
-                            "Error unsubscribing from queue #{name}")
+      client.check_response(method, Qrack::Protocol::Basic::CancelOk, "Error unsubscribing from queue #{name}")
 
       # Reset subscription
       @subscription = nil

@@ -55,6 +55,13 @@ module Bunny
     bunny.start
     bunny.queue(name, opts)
   end
+
+  def self.fanout_queue(exchange_name, queue_name)
+    exch = Bunny.exchange(exchange_name, :type => "fanout")
+    queue = Bunny.queue(queue_name)
+    queue.bind(exch)
+    queue
+  end
   
   def self.publish(name, msg, opts={})
     bunny = Bunny.new
