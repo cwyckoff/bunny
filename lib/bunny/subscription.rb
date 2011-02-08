@@ -132,7 +132,7 @@ my_queue.subscribe(:message_max => 10, :ack => true) {|msg| puts msg[:payload]}
 
         filtered_msg = ::Bunny::Filter.filter(:consume, msg)
         Bunny.logger.wrap("== BUNNY :: Receiving from '#{queue.name}'")
-        Bunny.logger.info("== Message: #{filtered_msg}")
+        Bunny.logger.info("== Message: #{filtered_msg.inspect}")
 
         # If block present, pass the message info to the block for processing		
         blk.call({:header => header, :payload => filtered_msg, :delivery_details => method.arguments}) if !blk.nil?

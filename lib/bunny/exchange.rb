@@ -159,9 +159,9 @@ nil
                                                        :immediate => immediate,
                                                        :deprecated_ticket => 0 }
                                                      )
-        filtered_msg = Filter.filter(:publish, data)
         Bunny.logger.wrap("== BUNNY :: Publishing to '#{name}'")
-        Bunny.logger.info("== Message: #{filtered_msg}")
+        Bunny.logger.info("== Message: #{data.inspect}")
+        filtered_msg = Filter.filter(:publish, data)
         out << Qrack::Protocol::Header.new(
                                              Qrack::Protocol::Basic,
                                              filtered_msg.to_s.length, {
