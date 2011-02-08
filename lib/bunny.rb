@@ -56,8 +56,18 @@ module Bunny
     bunny.queue(name, opts)
   end
   
-  def self.publish(queue_name, msg, opts={})
-    Bunny.queue(queue_name, opts).publish(msg)
+  def self.publish(name, msg, opts={})
+    bunny = Bunny.new
+    bunny.start
+
+    if opts[:type] && opts[:type] == "fanout"
+      exch = Bunny.exchange(name, opts.merge(:type => "fanout"))
+      exch.publish(msg)
+    else
+      queue = bunny.queue(name, opts.merge(:type => "direct"))
+      queue.publish(msg)
+    end
+    bunny.stop
   end
   
   # Runs a code block using a short-lived connection

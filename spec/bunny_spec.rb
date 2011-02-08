@@ -129,15 +129,27 @@ describe Bunny do
   describe ".publish" do
 
     it "publishes a messages to a specified queue" do
-      # given
-      queue = mock("BunnyQueue")
-      Bunny.stub(:queue).and_return(queue)
-
-      # expect
-      queue.should_receive(:publish).with("bar")
-
       # when
       Bunny.publish("foo", "bar")
+
+      # expect
+      Bunny.queue("foo").pop[:payload].should == "bar"
+    end
+    
+    it "publishes a messages to an exchange if type is set to 'fanout'" do
+      # given
+      exch = Bunny.exchange("foos", :type => "fanout")
+      q1 = Bunny.queue("queues1")
+      q2 = Bunny.queue("queues2")
+      q1.bind(exch)
+      q2.bind(exch)
+
+      # when
+      Bunny.publish("foos", "bar", :type => "fanout")
+
+      # expect
+      q1.pop[:payload].should == "bar"
+      q2.pop[:payload].should == "bar"
     end
     
   end
