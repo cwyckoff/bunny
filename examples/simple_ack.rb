@@ -1,4 +1,4 @@
-# simple_09.rb
+# simple_ack_09.rb
 
 # Assumes that target message broker/server has a user called 'guest' with a password 'guest'
 # and that it is running on 'localhost'.
@@ -10,7 +10,7 @@ $:.unshift File.dirname(__FILE__) + '/../lib'
 
 require 'bunny'
 
-b = Bunny.new(:logging => true, :spec => '09')
+b = Bunny.new(:logging => true)
 
 # start a communication session with the amqp server
 b.start
@@ -19,10 +19,13 @@ b.start
 q = b.queue('test1')
 
 # publish a message to the queue
-q.publish('Hello everybody!')
+q.publish('Testing acknowledgements')
 
 # get message from the queue
-msg = q.pop[:payload]
+msg = q.pop(:ack => true)[:payload]
+
+# acknowledge receipt of message
+q.ack
 
 puts 'This is the message: ' + msg + "\n\n"
 

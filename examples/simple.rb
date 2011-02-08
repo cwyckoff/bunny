@@ -1,6 +1,4 @@
-# simple_publisher_08.rb
-
-# N.B. To be used in conjunction with simple_consumer_08.rb. See simple_consumer.rb for explanation.
+# simple_09.rb
 
 # Assumes that target message broker/server has a user called 'guest' with a password 'guest'
 # and that it is running on 'localhost'.
@@ -17,11 +15,16 @@ b = Bunny.new(:logging => true)
 # start a communication session with the amqp server
 b.start
 
-# create/get exchange
-exch = b.exchange('sorting_room')
+# declare a queue
+q = b.queue('test1')
 
-# publish message to exchange
-exch.publish('This is a message from the publisher', :key => 'fred')
+# publish a message to the queue
+q.publish('Hello everybody!')
 
-# message should now be picked up by the consumer so we can stop
+# get message from the queue
+msg = q.pop[:payload]
+
+puts 'This is the message: ' + msg + "\n\n"
+
+# close the client connection
 b.stop
