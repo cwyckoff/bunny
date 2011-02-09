@@ -118,6 +118,22 @@ describe Bunny do
     
   end
 
+  describe ".delete_queue" do
+
+    it "deletes a specified queue" do
+      # given
+      Bunny.queue(:a_new_queue)
+      `rabbitmqctl list_queues`.should =~ /a_new_queue/
+
+      # when
+      Bunny.delete_queue(:a_new_queue)
+
+      # expect
+      `rabbitmqctl list_queues`.should_not =~ /a_new_queue/
+    end
+    
+  end
+
   describe ".queue" do
 
     it "returns a new Bunny queue object" do
