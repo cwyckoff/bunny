@@ -159,7 +159,7 @@ nil
                                                        :immediate => immediate,
                                                        :deprecated_ticket => 0 }
                                                      )
-        Bunny.logger.wrap("== BUNNY :: Publishing to '#{name}'")
+        Bunny.logger.wrap("== BUNNY :: Publishing to '#{((key.nil?) ? name : key)}'")
         Bunny.logger.info("== Message: #{data.inspect}")
         filtered_msg = Filter.filter(:publish, data)
         out << Qrack::Protocol::Header.new(

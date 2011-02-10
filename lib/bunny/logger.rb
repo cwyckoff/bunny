@@ -1,16 +1,5 @@
 require 'logger'
 
-class Logger
-
-  def wrap(data, wrapper="=", limit=100, level="info")
-    send(level, wrapper * limit.to_i)
-    send(level, data)
-    send(level, wrapper * limit.to_i)
-  end
-
-end
-
-
 module Bunny
 
   class MissingLogger < ::StandardError; end
@@ -36,6 +25,12 @@ module Bunny
 
     def format_message(severity, timestamp, progname, msg)
       "[#{timestamp.strftime("%Y-%m-%d %H:%M:%S %z")}] #{severity} -- : #{msg}\n"
+    end
+
+    def wrap(data, wrapper="=", limit=100, level="info")
+      send(level, wrapper * limit.to_i)
+      send(level, data)
+      send(level, wrapper * limit.to_i)
     end
 
   end
