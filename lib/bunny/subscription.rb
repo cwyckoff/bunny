@@ -108,7 +108,6 @@ my_queue.subscribe(:message_max => 10, :ack => true) {|msg| puts msg[:payload]}
 
       # Start subscription loop
       loop do
-        
         begin
           method = client.next_method(:timeout => timeout)
         rescue Bunny::ClientTimeout
@@ -130,13 +129,15 @@ my_queue.subscribe(:message_max => 10, :ack => true) {|msg| puts msg[:payload]}
           msg += client.next_payload
         end
 
-        filtered_msg = ::Bunny::Filter.filter(:consume, msg)
-        Bunny.logger.wrap("== BUNNY :: Receiving from '#{queue.name}'")
-        Bunny.logger.info("== Message: #{filtered_msg.inspect}")
+        ExceptionHandler.handle(:consume, {:action => :consuming, :destination => queue.name, :options => @opts}) do
+          filtered_msg = ::Bunny::Filter.filter(:consume, msg)
+          Bunny.logger.wrap("== BUNNY :: Receiving from '#{queue.name}'")
+          Bunny.logger.info("== Message: #{filtered_msg.inspect}")
 
-        # If block present, pass the message info to the block for processing		
-        blk.call({:header => header, :payload => filtered_msg, :delivery_details => method.arguments}) if !blk.nil?
-
+          # If block present, pass the message info to the block for processing		
+          blk.call({:header => header, :payload => filtered_msg, :delivery_details => method.arguments}) if !blk.nil?
+        end
+          
         # Exit loop if message_max condition met
         if (!message_max.nil? and message_count == message_max)
           # Stop consuming messages
@@ -153,7 +154,6 @@ my_queue.subscribe(:message_max => 10, :ack => true) {|msg| puts msg[:payload]}
         # deferred.
         queue.ack() if @ack
       end
-      
     end
     
     def setup_consumer

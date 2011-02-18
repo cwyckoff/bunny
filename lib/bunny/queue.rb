@@ -302,15 +302,9 @@ Returns hash {:message_count, :consumer_count}.
       {:message_count => method.message_count, :consumer_count => method.consumer_count}
     end
 
-    def new_subscription(opts={})
-      Subscription.new(client, self, opts)
-    end
-    
     def subscribe(opts = {}, &blk)
       # Create subscription
-      ExceptionHandler.handle(:consume, {:action => :consuming, :destination => name, :options => opts}) do
-        new_subscription(opts).start(&blk)
-      end
+      Subscription.new(client, self, opts).start(&blk)
       
       # Reset when subscription finished
       @subscription = nil

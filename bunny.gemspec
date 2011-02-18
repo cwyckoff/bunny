@@ -1,15 +1,15 @@
 Gem::Specification.new do |s|
-  s.name = %q{bunny}
+  s.name = %q{cwyckoff-bunny}
   s.version = "0.7.1"
   s.authors = ["Chris Duncan", "Chris Wyckoff"]
   s.date = %q{2009-10-05}
   s.description = %q{Another synchronous Ruby AMQP client}
-  s.email = %q{celldee@gmail.com}
+  s.email = %q{cbwyckoff@gmail.com}
   s.rubyforge_project = %q{bunny-amqp}
   s.has_rdoc = true
- 	s.extra_rdoc_files = [ "README.rdoc" ]
+  s.extra_rdoc_files = [ "README.rdoc" ]
   s.rdoc_options = [ "--main", "README.rdoc" ]
-  s.homepage = %q{http://github.com/celldee/bunny/tree/master}
+  s.homepage = %q{http://github.com/cwyckoff/bunny/tree/master}
   s.summary = %q{A synchronous Ruby AMQP client that enables interaction with AMQP-compliant brokers/servers.}
   s.files = ["LICENSE",
              "README.rdoc",
