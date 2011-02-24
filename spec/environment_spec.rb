@@ -2,6 +2,10 @@ require 'spec_helper'
 
 describe Bunny::Environment do
 
+  before(:each) do
+    Bunny::Environment.reset
+  end
+  
   describe ".define" do
     
     it "yields self to allow for setting of config options" do

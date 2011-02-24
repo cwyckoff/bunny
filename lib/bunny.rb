@@ -4,6 +4,7 @@ require 'bunny/logger'
 require 'bunny/filter'
 require 'bunny/environment'
 require 'bunny/exception_handler'
+require 'bunny/consumer'
 
 # Ruby standard libraries
 %w[socket thread timeout logger].each do |file|
@@ -98,14 +99,14 @@ module Bunny
   private
   
   def self.setup(opts)	
-    # AMQP 0-9-1 specification
+    # uses the AMQP 0-9-1 specification
     require 'qrack/qrack'
     require 'bunny/client'
     require 'bunny/exchange'
     require 'bunny/queue'
     require 'bunny/channel'
     require 'bunny/subscription'
-
+    
     client = Bunny::Client.new(opts)
     include Qrack
 
