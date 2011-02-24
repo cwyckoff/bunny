@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
              "lib/bunny/client.rb",
              "lib/bunny/exchange.rb",
              "lib/bunny/queue.rb",
+             "lib/bunny/consumer.rb",
              "lib/bunny/subscription.rb",
              "lib/qrack/protocol/protocol.rb",
              "lib/qrack/protocol/spec.rb",
